@@ -1,0 +1,11 @@
+[Unit]
+Description=mongodb
+After=network.target remote-fs.target nss-lookup.target
+[Service]
+Type=forking
+ExecStart=/data/apps/mongodb/mongodb-linux-x86_64-rhel70-4.0.0/bin/mongod --config /data/apps/mongodb/mongodb-linux-x86_64-rhel70-4.0.0/conf/mongodb.conf
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/data/apps/mongodb/mongodb-linux-x86_64-rhel70-4.0.0/bin/mongod --shutdown --config /data/apps/mongodb/mongodb-linux-x86_64-rhel70-4.0.0/conf/mongodb.conf
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target
