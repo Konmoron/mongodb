@@ -48,6 +48,19 @@ mongodb_file_name='mongodb-linux-x86_64-rhel70-4.0.0'
 mongodb_service_file="/usr/lib/systemd/system/${mongodb_name}.service"
 
 
+function print_mess() {
+	printf "${CMSG}
+===============================================================================================
+
+	安装单点mongodb 4.0
+
+	系统为：Centos 7
+
+===============================================================================================
+${CEND}"
+}
+
+
 function usage() {
 	printf "${CMSG}
 ===============================================================================================
@@ -167,6 +180,9 @@ EOF
 
 
 function install_mongodb() {
+	# print message
+	print_mess
+
 	# download mongodb
 	wget https://fastdl.mongodb.org/linux/${mongodb_tar_file}
 
