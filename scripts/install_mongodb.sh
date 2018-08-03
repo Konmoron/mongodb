@@ -66,9 +66,9 @@ function usage() {
 
 	安装完毕之后还需要进行其他的操作，参考：
 		初始化mongodb：
-			${CSUCCESS}http://note.youdao.com/noteshare?id=f7cf04ad2ac58fcbff8bb18b34899d61&sub=0C303C628315405CB7A497CB467C6E50${CMSG}
+			${CSUCCESS}https://github.com/Konmoron/mongodb/blob/master/articles/mongodb%E5%88%9D%E5%A7%8B%E5%8C%96.md${CMSG}
 		mongodb常用命令：
-			${CSUCCESS}http://note.youdao.com/noteshare?id=7a878567ecbef2aaad946d9c01ab0118&sub=4FAC5258EF434769BD302E03E4CB405A${CMSG}
+			${CSUCCESS}https://github.com/Konmoron/mongodb/blob/master/articles/mongodb%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4.md${CMSG}
 
 ===============================================================================================
 ${CEND}"
