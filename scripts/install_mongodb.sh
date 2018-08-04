@@ -49,7 +49,7 @@ mongodb_service_file="/usr/lib/systemd/system/${mongodb_name}.service"
 
 
 function print_mess() {
-	printf "${CMSG}
+	echo -e "${CMSG}
 ===============================================================================================
 
 	安装单点mongodb 4.0
@@ -62,7 +62,7 @@ ${CEND}"
 
 
 function usage() {
-	printf "${CMSG}
+	echo -e "${CMSG}
 ===============================================================================================
 
 	mongodb已经安装成功！
