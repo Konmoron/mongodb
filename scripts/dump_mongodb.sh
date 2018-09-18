@@ -22,7 +22,7 @@ back_date=$(date "+%Y-%m-%d")
 [[ ! -d ${backup_dir} ]] && mkdir -p ${backup_dir}
 
 # 备份所有的数据库
-/data/apps/mongodb/mongodb-linux-x86_64-rhel70-3.0.6/bin/mongodump -u admin -p feemockplatform -o ${backup_dir}/${mongodb_name}-${back_date}
+/data/apps/mongodb/mongodb-linux-x86_64-rhel70-3.0.6/bin/mongodump -u user -p password -o ${backup_dir}/${mongodb_name}-${back_date}
 
 # 删除30天之前的备份
 find ${backup_dir} -type d -name "${mongodb_name}" -mtime +30 -exec rm -rf {} \;
