@@ -36,23 +36,30 @@ CIP="$CWARNING"
 
 
 # set var
+mongodb_port=27017
 # mongodb name
-mongodb_name='mongodb'
+mongodb_name='mongodb'${mongodb_port}
 # install dir
 install_dir="/data/apps/${mongodb_name}"
-# mongodb tar file
-mongodb_tar_file='mongodb-linux-x86_64-rhel70-4.0.0.tgz'
-# mongodb file name
-mongodb_file_name='mongodb-linux-x86_64-rhel70-4.0.0'
 # set var
 mongodb_service_file="/usr/lib/systemd/system/${mongodb_name}.service"
+# mongodb version
+mongodb_version='4.0.0'
+# mongodb tar file
+mongodb_tar_file="mongodb-linux-x86_64-rhel70-${mongodb_version}.tgz"
+# mongodb file name
+mongodb_file_name="mongodb-linux-x86_64-rhel70-${mongodb_version}"
+
+
+# exec help
+[[ "x${1}" == "xhelp" || "x${1}" == "xh" || "x${1}" == "x--help" || "x${1}" == "x-h" ]] && usage_install && usage_del && exit 0
 
 
 function print_mess() {
 	echo -e "${CMSG}
 ===============================================================================================
 
-	安装单点mongodb 4.0
+	安装单点mongodb
 
 	系统为：Centos 7
 
@@ -61,20 +68,64 @@ ${CEND}"
 }
 
 
-function usage() {
+function usage_install() {
+	echo -e "${CMSG}
+
+本脚本提供一些安装mongodb的常用操作：
+	安装mongodb，如果不指定，则为默认端口为${CSUCCESS}27017${CEND}，默认版本为${CSUCCESS}4.0.0${CEND}
+
+	指定端口的方法：
+		${CSUCCESS}port${CEND}
+		例如端口为${CSUCCESS}27018${CEND}，安装命令为：
+			${CSUCCESS}脚本 27018${CEND}
+	指定版本的方法：
+		${CSUCCESS}version${CEND}
+		例如版本为${CSUCCESS}3.0.6${CEND}，安装命令为：
+			${CSUCCESS}脚本 3.0.6${CEND}
+		version的查看方法，参考：
+			https://www.mongodb.org/dl/linux/x86_64-rhel70?_ga=2.244393990.2045580309.1537169934-1971499088.1532748543
+	指定端口和版本的方法：
+		${CSUCCESS}port version${CEND}
+		端口为27018，版本为${CSUCCESS}3.0.6${CEND}，安装命令为：
+			${CSUCCESS}脚本 27018 3.0.6${CEND}
+
+	del：删除测试数据
+		具体的用法为：${CSUCCESS}del port${CEND}，删除指定端口的mongodb数据
+		假设要删除端口为27018的mongodb，具体的命令为：
+			${CSUCCESS}脚本 del 27018 ${CEND}
+
+${CEND}"
+}
+
+
+function usage_del() {
+	echo -e "${CMSG}
+
+	del：删除测试数据
+		具体的用法为：${CSUCCESS}del port${CEND}，删除指定端口的mongodb数据
+		假设要删除端口为27018的mongodb，具体的命令为：
+			${CSUCCESS}脚本 del 27018 ${CEND}
+
+${CEND}"
+}
+
+
+function usage_after_installed() {
 	echo -e "${CMSG}
 ===============================================================================================
 
 	mongodb已经安装成功！
 
-	安装位置为：${install_dir}
+	version：${CSUCCESS}${mongodb_version}${CEND}
 
-	mongodb的启动文件的位置：${install_dir}/${mongodb_file_name}/bin
+	安装位置为：${install_dir}${CEND}
+
+	mongodb的启动文件的位置：${CSUCCESS}${install_dir}/${mongodb_file_name}/bin${CEND}
 
 	已经将${install_dir}/${mongodb_file_name}/bin/mongo
 	拷贝到/usr/bin/
 	可以在命令行，直接输入：
-		${CSUCCESS}mongo 127.0.0.1:27017${CMSG}
+		${CSUCCESS}mongo 127.0.0.1:${mongodb_port}${CMSG}
 	连接mongodb
 
 	安装完毕之后还需要进行其他的操作，参考：
@@ -89,7 +140,7 @@ ${CEND}"
 
 
 function delete_test_mongodb() {
-	systemctl stop mongodb
+	systemctl stop ${mongodb_name}
 	rm ${install_dir} ${mongodb_service_file} /usr/bin/mongo -rf
 }
 
@@ -117,7 +168,32 @@ function check_soft() {
 }
 
 
+function init_params() {
+	# set var
+	mongodb_port=${1}
+	# mongodb name
+	mongodb_name='mongodb'${mongodb_port}
+	# install dir
+	install_dir="/data/apps/${mongodb_name}"
+	# set var
+	mongodb_service_file="/usr/lib/systemd/system/${mongodb_name}.service"
+}
+
+
+function init_version() {
+	# mongodb version
+	mongodb_version=$1
+	# mongodb tar file
+	mongodb_tar_file="mongodb-linux-x86_64-rhel70-${mongodb_version}.tgz"
+	# mongodb file name
+	mongodb_file_name="mongodb-linux-x86_64-rhel70-${mongodb_version}"
+}
+
+
 function init_env_for_mongodb() {
+	# 检查端口是否存在
+	netstat -tunlp | grep ${mongodb_port} && echo "${CFAILURE}port ${mongodb_port} is already exist${CEND}" && exit 1
+
 	# create mongodb home
 	[[ -d "${install_dir}" ]] && echo "${CFAILURE}${install_dir} is already exist${CEND}" && exit 1
 
@@ -132,7 +208,7 @@ function init_env_for_mongodb() {
 function create_mongodb_service() {
 	# 判断mongodb_service_file是否存在
 	#	如果存在，则退出
-	[[ -f "${mongodb_service_file}" ]] && echo -e "${CFAILURE}${mongodb_service_file} is already exist${CEND}" && delete_test_mongodb && exit 1
+	[[ -f "${mongodb_service_file}" ]] && echo -e "${CFAILURE}${mongodb_service_file} is already exist${CEND}" && exit 1
 
 	# create file
 	cat >> ${mongodb_service_file} << EOF
@@ -174,7 +250,7 @@ processManagement:
   fork: true
 net:
   bindIp: 0.0.0.0
-  port: 27017
+  port: ${mongodb_port}
 EOF
 }
 
@@ -211,11 +287,40 @@ function install_mongodb() {
 	rm ${mongodb_tar_file} -f
 
 	# print mess
-	usage
+	usage_after_installed
 }
 
 
+# 执行脚本
+function execShell() {
+	if [[ -z $1 ]]; then
+		init_env_for_mongodb && check_soft && install_mongodb
+	else
+		# 执行命令
+		case $1 in
+			# 判断是否为数字，参考：
+			#	1.http://xiaohuafyle.iteye.com/blog/1812437
+			[1-9][0-9]*)
+				if [[ -n $2 ]]; then
+					init_version $2
+				fi
+				init_params $1 && init_env_for_mongodb && check_soft && install_mongodb
+				;;
+			[1-9].[0-9].[0-9])
+				init_version $1 && init_env_for_mongodb && check_soft && install_mongodb
+				;;
+			del)
+				if [[ -z $2 ]]; then
+					usage_del && exit 1
+				else
+					init_params $2 && delete_test_mongodb
+				fi
+				;;
+			*)
+				usage_install && usage_del && exit 0
+				;;
+		esac
+	fi
+}
 
-init_env_for_mongodb && check_soft && install_mongodb
-
-# delete_test_mongodb
+execShell $*

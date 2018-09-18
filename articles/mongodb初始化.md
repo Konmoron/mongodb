@@ -77,6 +77,8 @@ processManagement:
 net:
   bindIp: 0.0.0.0
   port: 27017
+security:
+  authorization: enabled
 ```
 
 之后，重启mongodb即可：
